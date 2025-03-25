@@ -1,25 +1,36 @@
 package com.dev.token.jwt.security;
 
 import io.jsonwebtoken.*;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
 import java.util.Date;
 
+@Getter
+@Setter
 @Log4j2
 @Component
 public class JwtProvider {
 
+    @Value("${token.jwt.secret}")
     private String jwtSecret;
 
+    @Value("${token.jwt.expiration}")
     private int jwtExpirations;
 
-    public String gerarToken(String username) {
+    public String gerarToken(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        byte[] secretBytes = Base64.getDecoder().decode(jwtSecret);
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userDetails.getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirations))
-                .signWith(SignatureAlgorithm.HS256, jwtSecret)
+                .signWith(SignatureAlgorithm.HS256, secretBytes)
                 .compact();
     }
 
