@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin(origins = "x", maxAge = 3600)
 @RequestMapping("/auth")
@@ -47,5 +49,10 @@ public class AuthenticationController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.gerarToken(authentication);
         return ResponseEntity.ok(new JwtDto(jwt));
+    }
+
+    @GetMapping("/usuarios")
+    public List<User> listarUsuarios(){
+        return userService.findAll();
     }
 }
